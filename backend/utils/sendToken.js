@@ -13,7 +13,7 @@ const sendToken = (user, statusCode, res, message = "Success") => {
     expires: new Date(
       Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
-    sameSite: "lax",
+    sameSite: "strict", // CSRF protection: prevent cross-site request forgery
   };
 
   // Send token as cookie and in response
