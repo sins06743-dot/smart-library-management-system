@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const rateLimit = require("express-rate-limit");
 const errorMiddleware = require("./middlewares/errorMiddleware");
+const csrfProtection = require("./middlewares/csrfMiddleware");
 
 const app = express();
 
@@ -23,6 +24,9 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
+
+// CSRF protection - validates Origin header on state-changing requests
+app.use(csrfProtection);
 
 // Rate limiting - general API limiter (100 requests per 15 minutes per IP)
 const apiLimiter = rateLimit({
