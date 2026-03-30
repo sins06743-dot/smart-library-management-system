@@ -6,6 +6,8 @@ const {
   getBookById,
   updateBook,
   deleteBook,
+  regenerateQR,
+  getBookByQR,
 } = require("../controllers/bookController");
 const {
   isAuthenticated,
@@ -13,9 +15,11 @@ const {
 } = require("../middlewares/authMiddleware");
 
 router.get("/", getAllBooks);
+router.post("/scan", isAuthenticated, getBookByQR);
 router.get("/:id", getBookById);
 router.post("/", isAuthenticated, isAdmin, addBook);
 router.put("/:id", isAuthenticated, isAdmin, updateBook);
 router.delete("/:id", isAuthenticated, isAdmin, deleteBook);
+router.put("/:id/regenerate-qr", isAuthenticated, isAdmin, regenerateQR);
 
 module.exports = router;

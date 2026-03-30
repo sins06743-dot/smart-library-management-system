@@ -1,11 +1,13 @@
 const Borrow = require("../models/borrowModel");
 const Book = require("../models/bookModel");
+const Waitlist = require("../models/waitlistModel");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const calculateFine = require("../utils/fineCalculator");
 const sendEmail = require("../utils/sendEmail");
 const {
   borrowConfirmTemplate,
   returnConfirmTemplate,
+  bookAvailableTemplate,
 } = require("../utils/emailTemplates");
 
 // @desc    Issue a book to a member
@@ -120,6 +122,36 @@ exports.returnBook = catchAsyncErrors(async (req, res, next) => {
   // Update book availability to true
   await Book.findByIdAndUpdate(borrow.book._id, { availability: true });
 
+  // Check waitlist and notify next person
+  try {
+    const nextInLine = await Waitlist.findOne({
+      book: borrow.book._id,
+      status: "waiting",
+    })
+      .sort({ position: 1 })
+      .populate("user", "name email")
+      .populate("book", "title");
+
+    if (nextInLine) {
+      nextInLine.status = "notified";
+      nextInLine.notifiedAt = new Date();
+      nextInLine.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      await nextInLine.save();
+
+      await sendEmail({
+        email: nextInLine.user.email,
+        subject: `Book Available: ${nextInLine.book.title} - Smart Library`,
+        html: bookAvailableTemplate(
+          nextInLine.user.name,
+          nextInLine.book.title,
+          nextInLine.expiresAt
+        ),
+      });
+    }
+  } catch (waitlistError) {
+    console.error("Waitlist notification failed:", waitlistError);
+  }
+
   // Send return confirmation email
   try {
     await sendEmail({
@@ -187,4 +219,53 @@ exports.getOverdueRecords = catchAsyncErrors(async (req, res, next) => {
     count: overdueRecords.length,
     records: overdueRecords,
   });
+});
+
+// @desc    Issue book via QR scan
+// @route   POST /api/borrow/issue-qr
+// @access  Member
+exports.issueByQR = catchAsyncErrors(async (req, res, next) => {
+  const { qrData } = req.body;
+  if (!qrData) {
+    return res.status(400).json({ success: false, message: "QR data is required" });
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(qrData);
+  } catch {
+    return res.status(400).json({ success: false, message: "Invalid QR data" });
+  }
+  req.body.bookId = parsed.bookId;
+  return exports.issueBook(req, res, next);
+});
+
+// @desc    Return book via QR scan
+// @route   PUT /api/borrow/return-qr
+// @access  Authenticated
+exports.returnByQR = catchAsyncErrors(async (req, res, next) => {
+  const { qrData } = req.body;
+  if (!qrData) {
+    return res.status(400).json({ success: false, message: "QR data is required" });
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(qrData);
+  } catch {
+    return res.status(400).json({ success: false, message: "Invalid QR data" });
+  }
+
+  // Find the active borrow record for this book
+  // Admin can return any book; members can only return their own
+  const borrowQuery = { book: parsed.bookId, status: "borrowed" };
+  if (req.user.role !== "admin") {
+    borrowQuery.user = req.user._id;
+  }
+  const borrow = await Borrow.findOne(borrowQuery);
+
+  if (!borrow) {
+    return res.status(404).json({ success: false, message: "No active borrow record found for this book" });
+  }
+
+  req.params.id = borrow._id.toString();
+  return exports.returnBook(req, res, next);
 });

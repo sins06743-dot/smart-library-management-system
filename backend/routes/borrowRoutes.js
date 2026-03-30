@@ -6,6 +6,8 @@ const {
   getAllRecords,
   getMyRecords,
   getOverdueRecords,
+  issueByQR,
+  returnByQR,
 } = require("../controllers/borrowController");
 const {
   isAuthenticated,
@@ -13,7 +15,9 @@ const {
 } = require("../middlewares/authMiddleware");
 
 router.post("/issue", isAuthenticated, issueBook);
+router.post("/issue-qr", isAuthenticated, issueByQR);
 router.put("/return/:id", isAuthenticated, returnBook);
+router.put("/return-qr", isAuthenticated, returnByQR);
 router.get("/records", isAuthenticated, isAdmin, getAllRecords);
 router.get("/my-records", isAuthenticated, getMyRecords);
 router.get("/overdue", isAuthenticated, isAdmin, getOverdueRecords);

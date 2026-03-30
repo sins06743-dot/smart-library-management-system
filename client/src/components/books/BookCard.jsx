@@ -2,6 +2,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { issueBook } from "../../redux/slices/borrowSlice";
 import toast from "react-hot-toast";
 import { FiBookOpen } from "react-icons/fi";
+import StarRating from "./StarRating";
+import WaitlistButton from "./WaitlistButton";
 
 // Individual book display card
 const BookCard = ({ book }) => {
@@ -51,6 +53,14 @@ const BookCard = ({ book }) => {
         {/* ISBN */}
         <p className="text-xs text-gray-400 mb-3">ISBN: {book.ISBN}</p>
 
+        {/* Rating display */}
+        {book.averageRating > 0 && (
+          <div className="flex items-center gap-1 mb-3">
+            <StarRating rating={book.averageRating} size="sm" />
+            <span className="text-xs text-gray-400">({book.totalReviews})</span>
+          </div>
+        )}
+
         {/* Availability badge */}
         <div className="flex items-center justify-between">
           <span
@@ -73,6 +83,7 @@ const BookCard = ({ book }) => {
               {loading ? "..." : "Borrow"}
             </button>
           )}
+          <WaitlistButton book={book} />
         </div>
       </div>
     </div>
