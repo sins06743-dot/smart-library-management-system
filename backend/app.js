@@ -63,12 +63,20 @@ const authRoutes = require("./routes/authRoutes");
 const bookRoutes = require("./routes/bookRoutes");
 const borrowRoutes = require("./routes/borrowRoutes");
 const userRoutes = require("./routes/userRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
+const waitlistRoutes = require("./routes/waitlistRoutes");
+const recommendationRoutes = require("./routes/recommendationRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 
 // Mount routes
 app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/borrow", borrowRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/waitlist", waitlistRoutes);
+app.use("/api/recommendations", recommendationRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 // Health check route
 app.get("/", (req, res) => {

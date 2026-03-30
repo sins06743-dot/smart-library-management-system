@@ -2,14 +2,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slices/authSlice";
 import toast from "react-hot-toast";
-import { FiBook, FiLogOut, FiMenu, FiX } from "react-icons/fi";
+import { FiBook, FiLogOut, FiMenu, FiX, FiBarChart2, FiCamera } from "react-icons/fi";
 import { useState } from "react";
+import QRScanner from "../books/QRScanner";
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showQR, setShowQR] = useState(false);
 
   const handleLogout = async () => {
     await dispatch(logout());
@@ -44,9 +46,26 @@ const Navbar = () => {
                     Admin Dashboard
                   </Link>
                 ) : (
-                  <Link to="/member/dashboard" className="text-indigo-600 hover:text-indigo-800 font-medium">
-                    Dashboard
-                  </Link>
+                  <>
+                    <Link to="/member/dashboard" className="text-indigo-600 hover:text-indigo-800 font-medium">
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/member/analytics"
+                      className="flex items-center gap-1 text-purple-600 hover:text-purple-800 font-medium"
+                      title="Reading Analytics"
+                    >
+                      <FiBarChart2 />
+                      <span className="hidden lg:inline">Analytics</span>
+                    </Link>
+                    <button
+                      onClick={() => setShowQR(true)}
+                      className="flex items-center gap-1 text-gray-500 hover:text-indigo-600 font-medium"
+                      title="QR Scanner"
+                    >
+                      <FiCamera />
+                    </button>
+                  </>
                 )}
                 <span className="text-gray-500">|</span>
                 <span className="text-gray-700 font-medium">{user?.name}</span>
@@ -85,6 +104,12 @@ const Navbar = () => {
             {isAuthenticated ? (
               <>
                 <Link to={user?.role === "admin" ? "/admin/dashboard" : "/member/dashboard"} onClick={() => setMenuOpen(false)} className="block py-2 text-indigo-600 font-medium">Dashboard</Link>
+                {user?.role === "member" && (
+                  <>
+                    <Link to="/member/analytics" onClick={() => setMenuOpen(false)} className="block py-2 text-purple-600 font-medium">📊 Analytics</Link>
+                    <button onClick={() => { setMenuOpen(false); setShowQR(true); }} className="block py-2 text-gray-600 font-medium">📷 QR Scanner</button>
+                  </>
+                )}
                 <button onClick={handleLogout} className="text-red-600 font-medium py-2">Logout</button>
               </>
             ) : (
@@ -96,6 +121,9 @@ const Navbar = () => {
           </div>
         )}
       </div>
+
+      {/* QR Scanner modal */}
+      {showQR && <QRScanner onClose={() => setShowQR(false)} />}
     </nav>
   );
 };

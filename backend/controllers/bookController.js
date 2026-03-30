@@ -1,4 +1,5 @@
 const cloudinary = require("cloudinary").v2;
+const QRCode = require("qrcode");
 const Book = require("../models/bookModel");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
@@ -34,6 +35,15 @@ exports.addBook = catchAsyncErrors(async (req, res, next) => {
     description,
     coverImage,
   });
+
+  // Generate QR code encoding the book's ID for quick issue/return scanning
+  try {
+    const qrCode = await QRCode.toDataURL(book._id.toString());
+    book.qrCode = qrCode;
+    await book.save();
+  } catch (err) {
+    console.error("QR code generation failed:", err);
+  }
 
   res.status(201).json({
     success: true,

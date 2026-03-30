@@ -32,6 +32,19 @@ const bookSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  qrCode: {
+    type: String,
+    default: "",
+  },
+  // Average rating from reviews (0-5)
+  averageRating: {
+    type: Number,
+    default: 0,
+  },
+  totalReviews: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

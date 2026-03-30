@@ -35,6 +35,10 @@ import Reports from "./pages/admin/Reports";
 import MemberDashboard from "./pages/member/MemberDashboard";
 import MyBooks from "./pages/member/MyBooks";
 import Profile from "./pages/member/Profile";
+import ReadingAnalytics from "./pages/member/ReadingAnalytics";
+
+// Book detail page
+import BookDetail from "./pages/BookDetail";
 
 import "./App.css";
 
@@ -74,6 +78,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/catalog" element={<Catalog />} />
+            <Route path="/books/:id" element={<BookDetail />} />
 
             {/* Admin Protected Routes */}
             <Route
@@ -139,6 +144,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["member", "admin"]}>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/member/analytics"
+              element={
+                <ProtectedRoute allowedRoles={["member"]}>
+                  <ReadingAnalytics />
                 </ProtectedRoute>
               }
             />
