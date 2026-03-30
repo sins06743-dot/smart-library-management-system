@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getMyRecords } from "../../redux/slices/borrowSlice";
 import { Link } from "react-router-dom";
-import { FiBook, FiAlertCircle, FiClock, FiArrowRight } from "react-icons/fi";
+import { FiBook, FiAlertCircle, FiClock, FiArrowRight, FiBarChart2 } from "react-icons/fi";
+import RecommendedBooks from "../../components/books/RecommendedBooks";
 
 const MemberDashboard = () => {
   const dispatch = useDispatch();
@@ -60,7 +61,7 @@ const MemberDashboard = () => {
       )}
 
       {/* Quick Links */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link
           to="/member/my-books"
           className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-shadow flex items-center justify-between group"
@@ -81,7 +82,23 @@ const MemberDashboard = () => {
           </div>
           <FiArrowRight className="text-indigo-600 group-hover:translate-x-1 transition-transform text-xl" />
         </Link>
+        <Link
+          to="/member/analytics"
+          className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-shadow flex items-center justify-between group"
+        >
+          <div className="flex items-center gap-2">
+            <FiBarChart2 className="text-purple-500 text-xl" />
+            <div>
+              <h3 className="font-bold text-gray-800">Reading Analytics</h3>
+              <p className="text-sm text-gray-500">See your reading stats &amp; charts</p>
+            </div>
+          </div>
+          <FiArrowRight className="text-indigo-600 group-hover:translate-x-1 transition-transform text-xl" />
+        </Link>
       </div>
+
+      {/* AI Recommendations */}
+      <RecommendedBooks />
     </div>
   );
 };

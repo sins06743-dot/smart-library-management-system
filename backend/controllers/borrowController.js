@@ -7,6 +7,7 @@ const {
   borrowConfirmTemplate,
   returnConfirmTemplate,
 } = require("../utils/emailTemplates");
+const { notifyNextInWaitlist } = require("./waitlistController");
 
 // @desc    Issue a book to a member
 // @route   POST /api/borrow/issue
@@ -119,6 +120,9 @@ exports.returnBook = catchAsyncErrors(async (req, res, next) => {
 
   // Update book availability to true
   await Book.findByIdAndUpdate(borrow.book._id, { availability: true });
+
+  // Notify the next person on the waitlist (if any)
+  await notifyNextInWaitlist(borrow.book._id);
 
   // Send return confirmation email
   try {
