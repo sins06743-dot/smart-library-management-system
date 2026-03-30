@@ -1,6 +1,20 @@
 # 📚 Smart Library Management System (SLMS)
 
-A complete, production-ready **Smart Library Management System** built with the **MERN Stack** (MongoDB, Express.js, React.js, Node.js). This is a BCA Final Year Major Project featuring user authentication, book management, borrowing system, fine calculation, and automated email notifications.
+A complete, production-ready **Smart Library Management System** built with the **MERN Stack** (MongoDB, Express.js, React.js, Node.js). This is a BCA Final Year Major Project featuring user authentication, book management, borrowing system, fine calculation, automated email notifications, AI-powered book recommendations, QR code issue/return, community reviews & ratings, a waitlist system with auto-notifications, and a personal reading analytics dashboard.
+
+---
+
+## ✨ What's New — Advanced Features Added
+
+The following 5 advanced features were recently added on top of the core system:
+
+| # | Feature | Description |
+|---|---------|-------------|
+| 1 | 🤖 **AI Recommendations** | Personalized book suggestions based on each member's borrow history and preferred categories |
+| 2 | 📱 **QR Code Issue/Return** | Every book gets a unique QR code; members and admins can scan to instantly issue or return without manual ID entry |
+| 3 | ⭐ **Book Reviews & Ratings** | Members who have returned a book can leave a star rating + comment; ratings are averaged and shown on every book card |
+| 4 | 🔔 **Waitlist & Auto-Assignment** | Members join a position-tracked queue for unavailable books; the next person in line is auto-emailed the moment the book is returned |
+| 5 | 📊 **Reading Analytics** | Personal dashboard with bar charts (books/month), category pie chart, on-time return rate, and reading streak |
 
 ---
 
@@ -15,12 +29,14 @@ A complete, production-ready **Smart Library Management System** built with the 
 ### 📚 Book Management (Admin)
 - Add, edit, and delete books
 - Upload book cover images via **Cloudinary**
+- **QR code automatically generated** for every book on creation (stored as a data URL)
 - Search books by title, author, or category
 - Pagination support
 
 ### 📖 Borrowing System
 - Issue books to members (14-day return window)
 - Return books with automatic **fine calculation** (₹5/day overdue)
+- **Issue or return books by scanning QR code** (no manual ID entry needed)
 - Track all borrow/return history
 - View overdue records
 
@@ -34,11 +50,37 @@ A complete, production-ready **Smart Library Management System** built with the 
 - Borrow confirmation email
 - Return confirmation with fine details
 - **Daily overdue reminder emails** (Cron job at 9 AM)
+- **Automatic waitlist notification** when a reserved book becomes available
 
 ### 📊 Reports & Analytics
 - Total books, users, borrows statistics
 - Fine collection summary
 - Most borrowed books list
+
+### 🤖 AI Book Recommendations
+- Content-based filtering using each member's borrow history
+- Surfaces highly-rated available books from the member's preferred categories
+- Falls back to top-rated books globally for new users with no history
+- Embedded in the Member Dashboard as a "Recommended For You" section
+
+### ⭐ Book Reviews & Community Ratings
+- One review per user per book (enforced server-side)
+- Gated to users who have an actual returned borrow record for the book
+- Average rating and review count are denormalized on the Book document for fast reads
+- Star ratings are displayed on every BookCard and the Book Detail page
+
+### 🔔 Book Waitlist & Auto-Assignment
+- Position-ordered queue per book
+- Joining the waitlist is blocked when the book is available (direct borrow instead)
+- On every book return, the **next person in the queue is automatically emailed**
+- Members can view their queue position and leave the waitlist from My Books
+
+### 📈 Personal Reading Analytics
+- Books read per month — 12-month bar chart (Recharts)
+- Category distribution — pie chart
+- On-time return rate
+- Recent reading activity table
+- Accessible via **My Analytics** link in the member navigation
 
 ---
 
@@ -56,6 +98,8 @@ A complete, production-ready **Smart Library Management System** built with the 
 | **State Management** | Redux Toolkit, React-Redux |
 | **Routing** | React Router DOM v6 |
 | **Notifications** | react-hot-toast |
+| **QR Codes** | `qrcode` (backend generation), `qrcode.react` (frontend display) |
+| **Charts** | Recharts (bar chart, pie chart) |
 
 ---
 
@@ -69,22 +113,33 @@ smart-library-management-system/
 │   │   └── db.js               # MongoDB connection
 │   ├── controllers/
 │   │   ├── authController.js
-│   │   ├── bookController.js
+│   │   ├── bookController.js       # Includes QR code generation
 │   │   ├── borrowController.js
-│   │   └── userController.js
+│   │   ├── userController.js
+│   │   ├── reviewController.js     # ★ NEW — Book reviews & ratings
+│   │   ├── waitlistController.js   # ★ NEW — Waitlist queue management
+│   │   ├── recommendationController.js  # ★ NEW — AI recommendations
+│   │   └── analyticsController.js  # ★ NEW — Reading analytics
 │   ├── models/
 │   │   ├── userModel.js
-│   │   ├── bookModel.js
-│   │   └── borrowModel.js
+│   │   ├── bookModel.js            # Updated: qrCode, averageRating, totalReviews fields
+│   │   ├── borrowModel.js
+│   │   ├── reviewModel.js          # ★ NEW
+│   │   └── waitlistModel.js        # ★ NEW
 │   ├── routes/
 │   │   ├── authRoutes.js
 │   │   ├── bookRoutes.js
 │   │   ├── borrowRoutes.js
-│   │   └── userRoutes.js
+│   │   ├── userRoutes.js
+│   │   ├── reviewRoutes.js         # ★ NEW
+│   │   ├── waitlistRoutes.js       # ★ NEW
+│   │   ├── recommendationRoutes.js # ★ NEW
+│   │   └── analyticsRoutes.js      # ★ NEW
 │   ├── middlewares/
 │   │   ├── authMiddleware.js
 │   │   ├── errorMiddleware.js
-│   │   └── catchAsyncErrors.js
+│   │   ├── catchAsyncErrors.js
+│   │   └── csrfMiddleware.js
 │   ├── utils/
 │   │   ├── sendEmail.js
 │   │   ├── sendToken.js
@@ -102,15 +157,33 @@ smart-library-management-system/
 │   │   ├── components/
 │   │   │   ├── layout/         # Navbar, Footer, Sidebar
 │   │   │   ├── common/         # Loader, ProtectedRoute, DashboardCard
-│   │   │   ├── books/          # BookCard, BookList, BookForm
+│   │   │   ├── books/
+│   │   │   │   ├── BookCard.jsx    # Updated: star rating display, waitlist button
+│   │   │   │   ├── BookList.jsx
+│   │   │   │   ├── BookForm.jsx
+│   │   │   │   ├── BookReviews.jsx     # ★ NEW — Review form + reviews list
+│   │   │   │   ├── RecommendedBooks.jsx # ★ NEW — Recommendation carousel
+│   │   │   │   └── QRScanner.jsx       # ★ NEW — Camera QR scanner modal
 │   │   │   └── borrow/         # BorrowTable, BorrowCard
 │   │   ├── pages/
 │   │   │   ├── admin/          # AdminDashboard, ManageBooks, ManageUsers, BorrowRecords, Reports
-│   │   │   ├── member/         # MemberDashboard, MyBooks, Profile
+│   │   │   ├── member/
+│   │   │   │   ├── MemberDashboard.jsx  # Updated: shows RecommendedBooks
+│   │   │   │   ├── MyBooks.jsx          # Updated: shows waitlist queue position
+│   │   │   │   ├── Profile.jsx
+│   │   │   │   └── ReadingAnalytics.jsx # ★ NEW — Charts & stats page
 │   │   │   └── (public pages)  # Home, Login, Register, etc.
 │   │   ├── redux/
 │   │   │   ├── store.js
-│   │   │   └── slices/         # authSlice, bookSlice, borrowSlice, userSlice
+│   │   │   └── slices/
+│   │   │       ├── authSlice.js
+│   │   │       ├── bookSlice.js
+│   │   │       ├── borrowSlice.js
+│   │   │       ├── userSlice.js
+│   │   │       ├── reviewSlice.js         # ★ NEW
+│   │   │       ├── waitlistSlice.js       # ★ NEW
+│   │   │       ├── recommendationSlice.js # ★ NEW
+│   │   │       └── analyticsSlice.js      # ★ NEW
 │   │   └── utils/
 │   │       └── api.js          # Axios instance
 │   └── package.json
@@ -237,9 +310,10 @@ Open your browser and go to: **http://localhost:5173**
 |--------|----------|-------------|--------|
 | GET | `/api/books` | Get all books (search + pagination) | Public |
 | GET | `/api/books/:id` | Get single book | Public |
-| POST | `/api/books` | Add new book | Admin |
+| POST | `/api/books` | Add new book (generates QR code) | Admin |
 | PUT | `/api/books/:id` | Update book | Admin |
 | DELETE | `/api/books/:id` | Delete book | Admin |
+| PUT | `/api/books/:id/regenerate-qr` | Regenerate book QR code | Admin |
 
 ### Borrowing
 | Method | Endpoint | Description | Access |
@@ -258,6 +332,32 @@ Open your browser and go to: **http://localhost:5173**
 | PUT | `/api/users/:id/role` | Update user role | Admin |
 | DELETE | `/api/users/:id` | Delete user | Admin |
 
+### Reviews ★ NEW
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| POST | `/api/reviews/:bookId` | Add a review (must have returned book) | Member |
+| GET | `/api/reviews/:bookId` | Get all reviews for a book | Public |
+| GET | `/api/reviews/:bookId/can-review` | Check review eligibility | Authenticated |
+
+### Waitlist ★ NEW
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| POST | `/api/waitlist/:bookId` | Join the waitlist | Member |
+| DELETE | `/api/waitlist/:bookId` | Leave the waitlist | Member |
+| GET | `/api/waitlist/:bookId/position` | Get current queue position | Member |
+| GET | `/api/waitlist/my-waitlist` | Get all waitlisted books | Member |
+
+### Recommendations ★ NEW
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/api/recommendations` | Get personalized book recommendations | Authenticated |
+
+### Analytics ★ NEW
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/api/analytics/my-stats` | Get personal reading analytics | Authenticated |
+| GET | `/api/analytics/admin-summary` | Get admin-level analytics summary | Admin |
+
 ---
 
 ## 📸 Screenshots
@@ -266,9 +366,11 @@ Open your browser and go to: **http://localhost:5173**
 
 - Home Page - Hero section with features
 - Admin Dashboard - Statistics and recent activity
-- Book Catalog - Grid view with search
-- Member Dashboard - Borrow overview
-- Book Management - Table with add/edit/delete
+- Book Catalog - Grid view with search, star ratings, and waitlist button
+- Member Dashboard - Borrow overview with "Recommended For You" section
+- Book Detail - Full review section with star rating input
+- Book Management - Table with add/edit/delete and QR code display
+- Reading Analytics - Bar chart, category pie chart, and reading stats
 
 ---
 
