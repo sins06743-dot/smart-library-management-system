@@ -173,3 +173,37 @@ exports.overdueReminderTemplate = (name, bookTitle, returnDate, fine) => `
   </div>
 </body>
 </html>`;
+
+/**
+ * Book available (waitlist notification) email template
+ */
+exports.bookAvailableTemplate = (name, bookTitle, expiresAt) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: auto; background: #fff; border-radius: 8px; padding: 30px; }
+    .header { background: #059669; color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center; }
+    .alert-box { background: #ECFDF5; border: 1px solid #6EE7B7; padding: 15px; border-radius: 6px; margin: 15px 0; }
+    .btn { display: inline-block; background: #059669; color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; margin: 20px 0; }
+    .footer { text-align: center; color: #888; margin-top: 20px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📚 Book Now Available!</h1>
+    </div>
+    <h2>Hello, ${name}!</h2>
+    <div class="alert-box">
+      <p>Great news! The book <strong>${bookTitle}</strong> that you were waiting for is now available.</p>
+      <p>⏰ You have until <strong>${new Date(expiresAt).toLocaleString()}</strong> to claim it before it moves to the next person in queue.</p>
+    </div>
+    <p>Visit the library or log in to Smart Library to borrow it now!</p>
+    <div class="footer">
+      <p>© 2024 Smart Library Management System. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`;

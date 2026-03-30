@@ -1,4 +1,5 @@
 const cloudinary = require("cloudinary").v2;
+const QRCode = require("qrcode");
 const Book = require("../models/bookModel");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
@@ -34,6 +35,16 @@ exports.addBook = catchAsyncErrors(async (req, res, next) => {
     description,
     coverImage,
   });
+
+  // Generate QR code for the book
+  try {
+    const qrData = JSON.stringify({ bookId: book._id.toString(), title: book.title });
+    const qrCode = await QRCode.toDataURL(qrData);
+    book.qrCode = qrCode;
+    await book.save();
+  } catch (qrError) {
+    console.error("QR generation failed:", qrError);
+  }
 
   res.status(201).json({
     success: true,
@@ -147,4 +158,39 @@ exports.deleteBook = catchAsyncErrors(async (req, res, next) => {
     success: true,
     message: "Book deleted successfully",
   });
+});
+
+// @desc    Regenerate QR code for a book
+// @route   PUT /api/books/:id/regenerate-qr
+// @access  Admin
+exports.regenerateQR = catchAsyncErrors(async (req, res, next) => {
+  const book = await Book.findById(req.params.id);
+  if (!book) {
+    return res.status(404).json({ success: false, message: "Book not found" });
+  }
+  const qrData = JSON.stringify({ bookId: book._id.toString(), title: book.title });
+  book.qrCode = await QRCode.toDataURL(qrData);
+  await book.save();
+  res.status(200).json({ success: true, message: "QR code regenerated", book });
+});
+
+// @desc    Get book by scanning QR data
+// @route   POST /api/books/scan
+// @access  Authenticated
+exports.getBookByQR = catchAsyncErrors(async (req, res, next) => {
+  const { qrData } = req.body;
+  if (!qrData) {
+    return res.status(400).json({ success: false, message: "QR data is required" });
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(qrData);
+  } catch {
+    return res.status(400).json({ success: false, message: "Invalid QR data" });
+  }
+  const book = await Book.findById(parsed.bookId);
+  if (!book) {
+    return res.status(404).json({ success: false, message: "Book not found" });
+  }
+  res.status(200).json({ success: true, book });
 });
