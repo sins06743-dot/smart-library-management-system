@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slices/authSlice";
 import toast from "react-hot-toast";
-import { FiBook, FiLogOut, FiMenu, FiX } from "react-icons/fi";
+import { FiBook, FiLogOut, FiMenu, FiX, FiBarChart2 } from "react-icons/fi";
 import { useState } from "react";
 
 const Navbar = () => {
@@ -44,9 +44,14 @@ const Navbar = () => {
                     Admin Dashboard
                   </Link>
                 ) : (
-                  <Link to="/member/dashboard" className="text-indigo-600 hover:text-indigo-800 font-medium">
-                    Dashboard
-                  </Link>
+                  <>
+                    <Link to="/member/dashboard" className="text-indigo-600 hover:text-indigo-800 font-medium">
+                      Dashboard
+                    </Link>
+                    <Link to="/member/analytics" className="flex items-center gap-1 text-gray-600 hover:text-indigo-600 font-medium">
+                      <FiBarChart2 /> Analytics
+                    </Link>
+                  </>
                 )}
                 <span className="text-gray-500">|</span>
                 <span className="text-gray-700 font-medium">{user?.name}</span>
@@ -85,6 +90,9 @@ const Navbar = () => {
             {isAuthenticated ? (
               <>
                 <Link to={user?.role === "admin" ? "/admin/dashboard" : "/member/dashboard"} onClick={() => setMenuOpen(false)} className="block py-2 text-indigo-600 font-medium">Dashboard</Link>
+                {user?.role === "member" && (
+                  <Link to="/member/analytics" onClick={() => setMenuOpen(false)} className="flex items-center gap-1 py-2 text-gray-600 font-medium"><FiBarChart2 /> Analytics</Link>
+                )}
                 <button onClick={handleLogout} className="text-red-600 font-medium py-2">Logout</button>
               </>
             ) : (

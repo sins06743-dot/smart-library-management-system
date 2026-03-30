@@ -35,6 +35,7 @@ import Reports from "./pages/admin/Reports";
 import MemberDashboard from "./pages/member/MemberDashboard";
 import MyBooks from "./pages/member/MyBooks";
 import Profile from "./pages/member/Profile";
+import ReadingAnalytics from "./pages/member/ReadingAnalytics";
 
 import "./App.css";
 
@@ -139,6 +140,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["member", "admin"]}>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/member/analytics"
+              element={
+                <ProtectedRoute allowedRoles={["member"]}>
+                  <ReadingAnalytics />
                 </ProtectedRoute>
               }
             />

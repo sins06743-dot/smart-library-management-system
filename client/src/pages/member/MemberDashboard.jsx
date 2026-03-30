@@ -1,13 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getMyRecords } from "../../redux/slices/borrowSlice";
 import { Link } from "react-router-dom";
-import { FiBook, FiAlertCircle, FiClock, FiArrowRight } from "react-icons/fi";
+import { FiBook, FiAlertCircle, FiClock, FiArrowRight, FiCamera } from "react-icons/fi";
+import RecommendedBooks from "../../components/books/RecommendedBooks";
+import MyWaitlist from "../../components/borrow/MyWaitlist";
+import QRScanner from "../../components/books/QRScanner";
 
 const MemberDashboard = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { myRecords } = useSelector((state) => state.borrow);
+  const [showQRScanner, setShowQRScanner] = useState(false);
 
   useEffect(() => {
     dispatch(getMyRecords());
@@ -82,6 +86,27 @@ const MemberDashboard = () => {
           <FiArrowRight className="text-indigo-600 group-hover:translate-x-1 transition-transform text-xl" />
         </Link>
       </div>
+
+      {/* Recommended Books */}
+      <div className="mt-8 mb-8">
+        <RecommendedBooks />
+      </div>
+
+      {/* My Waitlist */}
+      <div className="mb-8">
+        <MyWaitlist />
+      </div>
+
+      {/* QR Scanner FAB */}
+      <button
+        onClick={() => setShowQRScanner(true)}
+        className="fixed bottom-8 right-8 bg-indigo-600 text-white w-14 h-14 rounded-full shadow-lg hover:bg-indigo-700 transition-colors flex items-center justify-center z-40"
+        title="Scan Book QR"
+      >
+        <FiCamera className="text-2xl" />
+      </button>
+
+      {showQRScanner && <QRScanner onClose={() => setShowQRScanner(false)} />}
     </div>
   );
 };
