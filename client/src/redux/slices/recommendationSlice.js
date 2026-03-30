@@ -52,10 +52,10 @@ const recommendationSlice = createSlice({
       .addCase(fetchRecommendations.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(fetchRecommendations.fulfilled, (state, action) => { state.loading = false; state.recommendations = action.payload; })
       .addCase(fetchRecommendations.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-      .addCase(fetchPopularBooks.pending, (state) => { state.loading = true; })
+      .addCase(fetchPopularBooks.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(fetchPopularBooks.fulfilled, (state, action) => { state.loading = false; state.popular = action.payload; })
       .addCase(fetchPopularBooks.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-      .addCase(fetchTrendingBooks.pending, (state) => { state.loading = true; })
+      .addCase(fetchTrendingBooks.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(fetchTrendingBooks.fulfilled, (state, action) => { state.loading = false; state.trending = action.payload; })
       .addCase(fetchTrendingBooks.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
   },

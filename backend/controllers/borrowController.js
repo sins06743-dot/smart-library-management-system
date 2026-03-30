@@ -255,10 +255,12 @@ exports.returnByQR = catchAsyncErrors(async (req, res, next) => {
   }
 
   // Find the active borrow record for this book
-  const borrow = await Borrow.findOne({
-    book: parsed.bookId,
-    status: "borrowed",
-  });
+  // Admin can return any book; members can only return their own
+  const borrowQuery = { book: parsed.bookId, status: "borrowed" };
+  if (req.user.role !== "admin") {
+    borrowQuery.user = req.user._id;
+  }
+  const borrow = await Borrow.findOne(borrowQuery);
 
   if (!borrow) {
     return res.status(404).json({ success: false, message: "No active borrow record found for this book" });

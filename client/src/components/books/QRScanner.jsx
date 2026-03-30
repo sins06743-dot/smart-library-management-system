@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import api from "../../utils/api";
 import toast from "react-hot-toast";
@@ -18,19 +18,19 @@ const QRScanner = ({ onClose }) => {
   const [scanning, setScanning] = useState(true);
   const [issuing, setIssuing] = useState(false);
 
-  useEffect(() => {
-    const handleScan = async (decodedText) => {
-      try {
-        scannerRef.current?.clear();
-        setScanning(false);
-        const { data } = await api.post("/books/scan", { qrData: decodedText });
-        setScannedBook({ ...data.book, qrData: decodedText });
-      } catch {
-        toast.error("Invalid QR code or book not found");
-        setScanning(true);
-      }
-    };
+  const handleScan = useCallback(async (decodedText) => {
+    try {
+      scannerRef.current?.clear();
+      setScanning(false);
+      const { data } = await api.post("/books/scan", { qrData: decodedText });
+      setScannedBook({ ...data.book, qrData: decodedText });
+    } catch {
+      toast.error("Invalid QR code or book not found");
+      setScanning(true);
+    }
+  }, []);
 
+  useEffect(() => {
     scannerRef.current = createScanner(handleScan, () => {});
 
     return () => {
@@ -40,7 +40,7 @@ const QRScanner = ({ onClose }) => {
         // ignore cleanup errors
       }
     };
-  }, []);
+  }, [handleScan]);
 
   const handleIssue = async () => {
     if (!scannedBook) return;
@@ -65,16 +65,6 @@ const QRScanner = ({ onClose }) => {
     } catch {
       // ignore
     }
-    const handleScan = async (decodedText) => {
-      try {
-        scannerRef.current?.clear();
-        setScanning(false);
-        const { data } = await api.post("/books/scan", { qrData: decodedText });
-        setScannedBook({ ...data.book, qrData: decodedText });
-      } catch {
-        toast.error("Invalid QR code or book not found");
-      }
-    };
     scannerRef.current = createScanner(handleScan, () => {});
   };
 

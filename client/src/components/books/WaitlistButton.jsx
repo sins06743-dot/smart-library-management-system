@@ -8,6 +8,8 @@ import {
 import toast from "react-hot-toast";
 import { FiClock, FiBell, FiX } from "react-icons/fi";
 
+const MS_PER_HOUR = 3_600_000;
+
 const WaitlistButton = ({ book }) => {
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -70,7 +72,7 @@ const WaitlistButton = ({ book }) => {
 
   if (positionData.status === "notified") {
     const hoursLeft = positionData.expiresAt
-      ? Math.max(0, Math.round((new Date(positionData.expiresAt) - Date.now()) / 3600000))
+      ? Math.max(0, Math.round((new Date(positionData.expiresAt) - Date.now()) / MS_PER_HOUR))
       : 24;
     return (
       <button className="flex items-center gap-1 bg-green-600 text-white text-sm px-3 py-1.5 rounded-lg animate-pulse">

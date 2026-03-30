@@ -6,7 +6,7 @@ const sendEmail = require("../utils/sendEmail");
 const { bookAvailableTemplate } = require("../utils/emailTemplates");
 
 const processWaitlist = () => {
-  // Run every hour
+  // Run every hour at the start of the hour (cron: minute=0, every hour)
   cron.schedule("0 * * * *", async () => {
     try {
       // Find expired notified entries

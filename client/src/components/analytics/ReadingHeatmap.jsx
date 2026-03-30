@@ -41,7 +41,7 @@ const ReadingHeatmap = ({ streakData = {} }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-      <h3 className="font-bold text-gray-800 mb-4">Reading Activity (Last 365 Days)</h3>
+      <h3 className="font-bold text-gray-800 mb-4">Reading Activity (Last Year)</h3>
       <div className="overflow-x-auto">
         <div className="relative" style={{ minWidth: `${weeks.length * 14}px` }}>
           {/* Month labels */}
