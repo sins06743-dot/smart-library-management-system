@@ -75,7 +75,10 @@ const waitlistSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(joinWaitlist.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(joinWaitlist.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(joinWaitlist.fulfilled, (state, action) => {
         state.loading = false;
         state.message = action.payload.message;
@@ -90,11 +93,17 @@ const waitlistSlice = createSlice({
       });
 
     builder
-      .addCase(leaveWaitlist.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(leaveWaitlist.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(leaveWaitlist.fulfilled, (state, action) => {
         state.loading = false;
         state.message = action.payload.message;
-        state.positions[action.payload.bookId] = { onWaitlist: false, position: null };
+        state.positions[action.payload.bookId] = {
+          onWaitlist: false,
+          position: null,
+        };
         state.myWaitlist = state.myWaitlist.filter(
           (e) => e.book?._id !== action.payload.bookId
         );
@@ -105,7 +114,9 @@ const waitlistSlice = createSlice({
       });
 
     builder
-      .addCase(getMyWaitlist.pending, (state) => { state.loading = true; })
+      .addCase(getMyWaitlist.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(getMyWaitlist.fulfilled, (state, action) => {
         state.loading = false;
         state.myWaitlist = action.payload.waitlist;

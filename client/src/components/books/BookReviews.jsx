@@ -91,7 +91,7 @@ const BookReviews = ({ bookId }) => {
           className="bg-indigo-50 rounded-xl p-4 mb-6 border border-indigo-100"
         >
           <p className="text-sm font-semibold text-indigo-700 mb-2">
-            Rate &amp; Review this book
+            Rate & Review this book
           </p>
           <StarRating rating={rating} interactive onRate={setRating} />
           <textarea

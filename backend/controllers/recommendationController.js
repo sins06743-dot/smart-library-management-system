@@ -7,10 +7,10 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 // @access  Authenticated
 //
 // Strategy:
-// 1. Find all categories the user has borrowed from (their preference profile).
-// 2. Find other users who share at least one category (collaborative filtering).
-// 3. Recommend books those users borrowed that the current user hasn't read yet.
-// 4. Fall back to top-rated books in the user's favourite categories if not enough results.
+// 1. Find all categories the user has borrowed from (content-based preference profile).
+// 2. Recommend highly-rated available books in those same categories that the user hasn't read yet.
+// 3. Fall back to top-rated books overall if not enough category-specific results.
+// 4. For brand-new users with no borrow history, return the highest-rated available books.
 exports.getRecommendations = catchAsyncErrors(async (req, res, next) => {
   const userId = req.user._id;
 

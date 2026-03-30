@@ -61,7 +61,9 @@ const reviewSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getBookReviews.pending, (state) => { state.loading = true; })
+      .addCase(getBookReviews.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(getBookReviews.fulfilled, (state, action) => {
         state.loading = false;
         state.reviews = action.payload.reviews;
@@ -72,7 +74,10 @@ const reviewSlice = createSlice({
       });
 
     builder
-      .addCase(addReview.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(addReview.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(addReview.fulfilled, (state, action) => {
         state.loading = false;
         state.message = action.payload.message;
