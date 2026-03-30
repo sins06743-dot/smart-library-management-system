@@ -49,7 +49,7 @@ const getRecommendations = async (userId) => {
     borrowCountMap[item._id.toString()] = item.count;
   });
 
-  const maxBorrowCount = Math.max(...Object.values(borrowCountMap), 1);
+  const maxBorrowCount = Math.max(1, ...Object.values(borrowCountMap));
 
   // Get recent borrow counts (last 30 days) for recency scoring
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -62,7 +62,7 @@ const getRecommendations = async (userId) => {
     recentBorrowMap[item._id.toString()] = item.count;
   });
 
-  const maxRecentCount = Math.max(...Object.values(recentBorrowMap), 1);
+  const maxRecentCount = Math.max(1, ...Object.values(recentBorrowMap));
 
   // Find similar users (collaborative filtering)
   const similarUserBorrows = await Borrow.find({
