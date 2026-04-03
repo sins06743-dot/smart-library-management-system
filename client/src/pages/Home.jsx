@@ -260,8 +260,7 @@ const Home = () => {
                 >
                   {/* Glow effect on hover */}
                   <div
-                    className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${feature.gradient} blur-xl -z-10`}
-                    style={{ transform: "scale(0.8)", opacity: 0 }}
+                    className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${feature.gradient} blur-xl -z-10 scale-[0.8]`}
                   />
                   <div
                     className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-[0.05] transition-opacity duration-500 bg-gradient-to-br ${feature.gradient}`}
