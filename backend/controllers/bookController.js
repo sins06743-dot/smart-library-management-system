@@ -158,3 +158,34 @@ exports.deleteBook = catchAsyncErrors(async (req, res, next) => {
     message: "Book deleted successfully",
   });
 });
+
+// @desc    Regenerate QR code for an existing book
+// @route   PUT /api/books/:id/regenerate-qr
+// @access  Admin only
+exports.regenerateQR = catchAsyncErrors(async (req, res, next) => {
+  const book = await Book.findById(req.params.id);
+
+  if (!book) {
+    return res.status(404).json({
+      success: false,
+      message: "Book not found",
+    });
+  }
+
+  try {
+    const qrCode = await QRCode.toDataURL(book._id.toString());
+    book.qrCode = qrCode;
+    await book.save();
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to regenerate QR code",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "QR code regenerated successfully",
+    qrCode: book.qrCode,
+  });
+});

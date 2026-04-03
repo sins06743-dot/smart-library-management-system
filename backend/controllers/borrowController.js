@@ -192,3 +192,63 @@ exports.getOverdueRecords = catchAsyncErrors(async (req, res, next) => {
     records: overdueRecords,
   });
 });
+
+// @desc    Return a book by scanning its QR code (book ID)
+// @route   PUT /api/borrow/return-by-qr
+// @access  Authenticated (members: own books only, admins: any)
+exports.returnByQR = catchAsyncErrors(async (req, res, next) => {
+  const { bookId } = req.body;
+
+  if (!bookId) {
+    return res.status(400).json({
+      success: false,
+      message: "Please provide a book ID",
+    });
+  }
+
+  // Build query — members can only return their own; admins bypass ownership
+  const query = { book: bookId, status: "borrowed" };
+  if (req.user.role !== "admin") {
+    query.user = req.user._id;
+  }
+
+  const borrow = await Borrow.findOne(query).populate("book user");
+
+  if (!borrow) {
+    return res.status(404).json({
+      success: false,
+      message:
+        req.user.role === "admin"
+          ? "No active borrow record found for this book"
+          : "You do not have this book checked out",
+    });
+  }
+
+  const actualReturnDate = new Date();
+  const fine = calculateFine(borrow.returnDate, actualReturnDate);
+
+  borrow.status = "returned";
+  borrow.actualReturnDate = actualReturnDate;
+  borrow.fine = fine;
+  await borrow.save();
+
+  await Book.findByIdAndUpdate(borrow.book._id, { availability: true });
+  await notifyNextInWaitlist(borrow.book._id);
+
+  try {
+    await sendEmail({
+      email: borrow.user.email,
+      subject: "Book Returned Successfully - Smart Library",
+      html: returnConfirmTemplate(borrow.user.name, borrow.book.title, fine),
+    });
+  } catch (error) {
+    console.error("Email sending failed:", error);
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Book returned via QR successfully",
+    fine,
+    borrow,
+  });
+});
