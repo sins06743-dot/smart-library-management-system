@@ -1,17 +1,22 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getMyRecords } from "../../redux/slices/borrowSlice";
+import { getMyWaitlist } from "../../redux/slices/waitlistSlice";
 import { Link } from "react-router-dom";
-import { FiBook, FiAlertCircle, FiClock, FiArrowRight, FiBarChart2 } from "react-icons/fi";
+import { FiBook, FiAlertCircle, FiClock, FiArrowRight, FiBarChart2, FiBookOpen } from "react-icons/fi";
 import RecommendedBooks from "../../components/books/RecommendedBooks";
+import QRScanner, { QRScannerFAB } from "../../components/books/QRScanner";
 
 const MemberDashboard = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { myRecords } = useSelector((state) => state.borrow);
+  const { myWaitlist, loading: wlLoading } = useSelector((state) => state.waitlist);
+  const [showQR, setShowQR] = useState(false);
 
   useEffect(() => {
     dispatch(getMyRecords());
+    dispatch(getMyWaitlist());
   }, [dispatch]);
 
   const activeBorrows = myRecords.filter((r) => r.status === "borrowed");
@@ -60,6 +65,56 @@ const MemberDashboard = () => {
         </div>
       )}
 
+      {/* My Waitlist Section */}
+      {myWaitlist.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+          <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <FiClock className="text-orange-500" />
+            My Waitlist ({myWaitlist.length})
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {myWaitlist.map((entry) => (
+              <div
+                key={entry._id}
+                className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-100"
+              >
+                <div className="h-12 w-10 bg-gradient-to-br from-indigo-100 to-purple-100 rounded flex items-center justify-center flex-shrink-0">
+                  {entry.book?.coverImage ? (
+                    <img
+                      src={entry.book.coverImage}
+                      alt={entry.book.title}
+                      className="h-full w-full object-cover rounded"
+                    />
+                  ) : (
+                    <FiBookOpen className="text-indigo-400 text-sm" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <Link
+                    to={`/books/${entry.book?._id}`}
+                    className="text-sm font-semibold text-gray-800 hover:text-indigo-600 truncate block"
+                  >
+                    {entry.book?.title}
+                  </Link>
+                  <p className="text-xs text-gray-400">by {entry.book?.author}</p>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  {entry.status === "notified" ? (
+                    <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full animate-pulse">
+                      Claim now!
+                    </span>
+                  ) : (
+                    <span className="text-xs text-indigo-600 font-semibold">
+                      #{entry.position}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Quick Links */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link
@@ -99,6 +154,12 @@ const MemberDashboard = () => {
 
       {/* AI Recommendations */}
       <RecommendedBooks />
+
+      {/* Floating QR Scanner FAB */}
+      <QRScannerFAB onClick={() => setShowQR(true)} />
+
+      {/* QR Scanner Modal */}
+      {showQR && <QRScanner onClose={() => setShowQR(false)} />}
     </div>
   );
 };

@@ -8,6 +8,7 @@ const connectDB = require("./config/db");
 const cloudinary = require("cloudinary").v2;
 const notifyUsers = require("./services/notifyUsers");
 const removeUnverifiedAccounts = require("./services/removeUnverifiedAccounts");
+const startWaitlistProcessor = require("./services/waitlistProcessor");
 
 // Configure Cloudinary for image uploads
 cloudinary.config({
@@ -30,6 +31,7 @@ const server = app.listen(PORT, () => {
 // Start cron jobs
 notifyUsers();
 removeUnverifiedAccounts();
+startWaitlistProcessor();
 console.log("Cron jobs started");
 
 // Handle unhandled promise rejections

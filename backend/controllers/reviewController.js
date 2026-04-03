@@ -56,16 +56,24 @@ exports.addReview = catchAsyncErrors(async (req, res, next) => {
     comment: comment || "",
   });
 
-  // Update book's average rating and review count
-  const allReviews = await Review.find({ book: bookId });
-  const totalReviews = allReviews.length;
-  const averageRating =
-    allReviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews;
+  // Update book's average rating and review count via $avg aggregation
+  const ratingStats = await Review.aggregate([
+    { $match: { book: review.book } },
+    {
+      $group: {
+        _id: "$book",
+        averageRating: { $avg: "$rating" },
+        totalReviews: { $sum: 1 },
+      },
+    },
+  ]);
 
-  await Book.findByIdAndUpdate(bookId, {
-    averageRating: Math.round(averageRating * 10) / 10,
-    totalReviews,
-  });
+  if (ratingStats.length > 0) {
+    await Book.findByIdAndUpdate(bookId, {
+      averageRating: Math.round(ratingStats[0].averageRating * 10) / 10,
+      totalReviews: ratingStats[0].totalReviews,
+    });
+  }
 
   const populatedReview = await review.populate("user", "name avatar");
 

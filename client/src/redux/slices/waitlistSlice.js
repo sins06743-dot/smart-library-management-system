@@ -57,6 +57,20 @@ export const getWaitlistPosition = createAsyncThunk(
   }
 );
 
+export const claimWaitlistSlot = createAsyncThunk(
+  "waitlist/claim",
+  async (bookId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post(`/waitlist/${bookId}/claim`);
+      return { ...data, bookId };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to claim slot"
+      );
+    }
+  }
+);
+
 const waitlistSlice = createSlice({
   name: "waitlist",
   initialState: {
@@ -131,8 +145,28 @@ const waitlistSlice = createSlice({
         state.positions[action.payload.bookId] = {
           onWaitlist: action.payload.onWaitlist,
           position: action.payload.position,
+          status: action.payload.status,
+          expiresAt: action.payload.expiresAt,
           totalWaiting: action.payload.totalWaiting,
         };
+      });
+
+    builder
+      .addCase(claimWaitlistSlot.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(claimWaitlistSlot.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+        state.positions[action.payload.bookId] = {
+          onWaitlist: false,
+          position: null,
+        };
+      })
+      .addCase(claimWaitlistSlot.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

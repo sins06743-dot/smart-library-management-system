@@ -5,9 +5,9 @@ import { getBookById } from "../redux/slices/bookSlice";
 import { issueBook } from "../redux/slices/borrowSlice";
 import BookReviews from "../components/books/BookReviews";
 import { BookQRCode } from "../components/books/QRScanner";
-import { joinWaitlist, leaveWaitlist, getWaitlistPosition } from "../redux/slices/waitlistSlice";
+import WaitlistButton from "../components/books/WaitlistButton";
 import toast from "react-hot-toast";
-import { FiBookOpen, FiArrowLeft, FiStar, FiClock } from "react-icons/fi";
+import { FiBookOpen, FiArrowLeft, FiStar } from "react-icons/fi";
 import Loader from "../components/common/Loader";
 
 const BookDetail = () => {
@@ -16,19 +16,10 @@ const BookDetail = () => {
   const { book, loading } = useSelector((state) => state.books);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const { loading: borrowLoading } = useSelector((state) => state.borrow);
-  const { positions, loading: wlLoading } = useSelector((state) => state.waitlist);
-
-  const position = book ? positions[book._id] : null;
 
   useEffect(() => {
     dispatch(getBookById(id));
   }, [dispatch, id]);
-
-  useEffect(() => {
-    if (book && isAuthenticated && user?.role === "member" && !book.availability) {
-      dispatch(getWaitlistPosition(book._id));
-    }
-  }, [dispatch, book, isAuthenticated, user]);
 
   const handleBorrow = async () => {
     const result = await dispatch(issueBook(book._id));
@@ -37,24 +28,6 @@ const BookDetail = () => {
       dispatch(getBookById(id));
     } else {
       toast.error(result.payload || "Failed to borrow book");
-    }
-  };
-
-  const handleJoinWaitlist = async () => {
-    const result = await dispatch(joinWaitlist(book._id));
-    if (result.meta.requestStatus === "fulfilled") {
-      toast.success(result.payload.message);
-    } else {
-      toast.error(result.payload || "Failed to join waitlist");
-    }
-  };
-
-  const handleLeaveWaitlist = async () => {
-    const result = await dispatch(leaveWaitlist(book._id));
-    if (result.meta.requestStatus === "fulfilled") {
-      toast.success("Removed from waitlist");
-    } else {
-      toast.error(result.payload || "Failed to leave waitlist");
     }
   };
 
@@ -130,32 +103,8 @@ const BookDetail = () => {
                 </button>
               )}
 
-              {isAuthenticated && user?.role === "member" && !book.availability && (
-                <>
-                  {position?.onWaitlist ? (
-                    <div className="flex flex-col gap-1">
-                      <span className="text-sm text-indigo-600 font-semibold flex items-center gap-1">
-                        <FiClock /> You are #{position.position} in the waitlist
-                      </span>
-                      <button
-                        onClick={handleLeaveWaitlist}
-                        disabled={wlLoading}
-                        className="text-xs text-red-500 hover:underline"
-                      >
-                        Leave waitlist
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={handleJoinWaitlist}
-                      disabled={wlLoading}
-                      className="bg-orange-500 text-white px-5 py-2 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
-                    >
-                      {wlLoading ? "…" : "Join Waitlist"}
-                    </button>
-                  )}
-                </>
-              )}
+              {/* WaitlistButton handles join/position/urgent-claim */}
+              <WaitlistButton bookId={book._id} availability={book.availability} />
 
               {/* QR for admin */}
               {isAuthenticated && user?.role === "admin" && (

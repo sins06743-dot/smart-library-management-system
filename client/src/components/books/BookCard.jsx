@@ -2,25 +2,16 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { issueBook } from "../../redux/slices/borrowSlice";
-import { joinWaitlist, leaveWaitlist, getWaitlistPosition } from "../../redux/slices/waitlistSlice";
 import toast from "react-hot-toast";
-import { FiBookOpen, FiStar, FiClock } from "react-icons/fi";
+import { FiBookOpen, FiStar } from "react-icons/fi";
 import { BookQRCode } from "./QRScanner";
+import WaitlistButton from "./WaitlistButton";
 
 // Individual book display card
 const BookCard = ({ book }) => {
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const { loading } = useSelector((state) => state.borrow);
-  const { positions, loading: wlLoading } = useSelector((state) => state.waitlist);
-
-  const position = positions[book._id];
-
-  useEffect(() => {
-    if (isAuthenticated && user?.role === "member" && !book.availability) {
-      dispatch(getWaitlistPosition(book._id));
-    }
-  }, [dispatch, book._id, book.availability, isAuthenticated, user]);
 
   const handleBorrow = async () => {
     if (!isAuthenticated) {
@@ -32,24 +23,6 @@ const BookCard = ({ book }) => {
       toast.success("Book borrowed successfully!");
     } else {
       toast.error(result.payload || "Failed to borrow book");
-    }
-  };
-
-  const handleJoinWaitlist = async () => {
-    const result = await dispatch(joinWaitlist(book._id));
-    if (result.meta.requestStatus === "fulfilled") {
-      toast.success(result.payload.message);
-    } else {
-      toast.error(result.payload || "Failed to join waitlist");
-    }
-  };
-
-  const handleLeaveWaitlist = async () => {
-    const result = await dispatch(leaveWaitlist(book._id));
-    if (result.meta.requestStatus === "fulfilled") {
-      toast.success("Removed from waitlist");
-    } else {
-      toast.error(result.payload || "Failed to leave waitlist");
     }
   };
 
@@ -118,33 +91,8 @@ const BookCard = ({ book }) => {
             </button>
           )}
 
-          {/* Waitlist buttons for unavailable books */}
-          {isAuthenticated && user?.role === "member" && !book.availability && (
-            <>
-              {position?.onWaitlist ? (
-                <div className="flex flex-col items-end gap-1">
-                  <span className="text-xs text-indigo-600 font-semibold flex items-center gap-1">
-                    <FiClock /> #{position.position} in queue
-                  </span>
-                  <button
-                    onClick={handleLeaveWaitlist}
-                    disabled={wlLoading}
-                    className="text-xs text-red-500 hover:underline disabled:opacity-50"
-                  >
-                    Leave waitlist
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={handleJoinWaitlist}
-                  disabled={wlLoading}
-                  className="bg-orange-500 text-white text-sm px-3 py-1.5 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
-                >
-                  {wlLoading ? "..." : "Join Waitlist"}
-                </button>
-              )}
-            </>
-          )}
+          {/* Waitlist button for unavailable books */}
+          <WaitlistButton bookId={book._id} availability={book.availability} />
         </div>
 
         {/* QR code for admins */}

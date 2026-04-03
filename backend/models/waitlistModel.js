@@ -17,6 +17,17 @@ const waitlistSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  // Status tracks the lifecycle: waiting → notified → fulfilled/expired/cancelled
+  status: {
+    type: String,
+    enum: ["waiting", "notified", "fulfilled", "expired", "cancelled"],
+    default: "waiting",
+  },
+  // 24h claim window after notification
+  expiresAt: {
+    type: Date,
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

@@ -6,6 +6,7 @@ const {
   getBookById,
   updateBook,
   deleteBook,
+  regenerateQR,
 } = require("../controllers/bookController");
 const {
   isAuthenticated,
@@ -16,6 +17,7 @@ router.get("/", getAllBooks);
 router.get("/:id", getBookById);
 router.post("/", isAuthenticated, isAdmin, addBook);
 router.put("/:id", isAuthenticated, isAdmin, updateBook);
+router.put("/:id/regenerate-qr", isAuthenticated, isAdmin, regenerateQR);
 router.delete("/:id", isAuthenticated, isAdmin, deleteBook);
 
 module.exports = router;
