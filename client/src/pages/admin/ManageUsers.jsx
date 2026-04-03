@@ -8,7 +8,7 @@ import {
 } from "../../redux/slices/userSlice";
 import Sidebar from "../../components/layout/Sidebar";
 import toast from "react-hot-toast";
-import { FiTrash2, FiShield, FiUser } from "react-icons/fi";
+import { Trash2, Shield, User } from "lucide-react";
 
 const ManageUsers = () => {
   const dispatch = useDispatch();
@@ -48,16 +48,16 @@ const ManageUsers = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen pt-16">
       <Sidebar />
       <div className="flex-1 p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-8">Manage Users</h1>
+        <h1 className="font-heading text-2xl font-bold text-white mb-8">Manage Users</h1>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="glass-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
-                <tr className="bg-gray-50 text-gray-600 text-sm">
+                <tr className="border-b border-white/5 text-gray-400 text-sm">
                   <th className="px-6 py-4 text-left font-semibold">User</th>
                   <th className="px-6 py-4 text-left font-semibold">Email</th>
                   <th className="px-6 py-4 text-left font-semibold">Role</th>
@@ -66,26 +66,26 @@ const ManageUsers = () => {
                   <th className="px-6 py-4 text-left font-semibold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-white/5">
                 {users.map((u) => (
-                  <tr key={u._id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={u._id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-indigo-100 rounded-full flex items-center justify-center">
-                          <span className="text-indigo-600 font-semibold text-sm">
+                        <div className="w-9 h-9 bg-violet-500/10 border border-violet-500/20 rounded-full flex items-center justify-center">
+                          <span className="text-violet-400 font-semibold text-sm">
                             {u.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
-                        <span className="font-medium text-gray-800">{u.name}</span>
+                        <span className="font-medium text-white">{u.name}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{u.email}</td>
+                    <td className="px-6 py-4 text-sm text-gray-400">{u.email}</td>
                     <td className="px-6 py-4">
                       <span
                         className={`text-xs font-semibold px-2 py-1 rounded-full ${
                           u.role === "admin"
-                            ? "bg-purple-100 text-purple-700"
-                            : "bg-blue-100 text-blue-700"
+                            ? "bg-violet-500/10 text-violet-400 border border-violet-500/20"
+                            : "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
                         }`}
                       >
                         {u.role}
@@ -95,8 +95,8 @@ const ManageUsers = () => {
                       <span
                         className={`text-xs font-semibold px-2 py-1 rounded-full ${
                           u.verified
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                            : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                         }`}
                       >
                         {u.verified ? "Verified" : "Pending"}
@@ -112,23 +112,23 @@ const ManageUsers = () => {
                             <button
                               onClick={() => handleRoleToggle(u._id, u.role)}
                               disabled={loading}
-                              className="text-purple-600 hover:bg-purple-50 p-2 rounded-lg transition-colors"
+                              className="text-violet-400 hover:bg-violet-500/10 p-2 rounded-lg transition-colors"
                               title={u.role === "admin" ? "Demote to member" : "Promote to admin"}
                             >
-                              {u.role === "admin" ? <FiUser /> : <FiShield />}
+                              {u.role === "admin" ? <User className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
                             </button>
                             <button
                               onClick={() => handleDelete(u._id)}
                               disabled={loading}
-                              className="text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                              className="text-red-400 hover:bg-red-500/10 p-2 rounded-lg transition-colors"
                               title="Delete user"
                             >
-                              <FiTrash2 />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </>
                         )}
                         {u._id === currentUser?._id && (
-                          <span className="text-xs text-gray-400">(You)</span>
+                          <span className="text-xs text-gray-500">(You)</span>
                         )}
                       </div>
                     </td>
@@ -136,7 +136,7 @@ const ManageUsers = () => {
                 ))}
                 {users.length === 0 && (
                   <tr>
-                    <td colSpan="6" className="text-center py-10 text-gray-400">
+                    <td colSpan="6" className="text-center py-10 text-gray-500">
                       No users found
                     </td>
                   </tr>

@@ -10,7 +10,7 @@ import {
 import Sidebar from "../../components/layout/Sidebar";
 import BookForm from "../../components/books/BookForm";
 import toast from "react-hot-toast";
-import { FiPlus, FiEdit2, FiTrash2, FiX, FiBookOpen } from "react-icons/fi";
+import { Plus, Pencil, Trash2, X, BookOpen } from "lucide-react";
 
 const ManageBooks = () => {
   const dispatch = useDispatch();
@@ -64,26 +64,26 @@ const ManageBooks = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen pt-16">
       <Sidebar />
       <div className="flex-1 p-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800">Manage Books</h1>
+          <h1 className="font-heading text-2xl font-bold text-white">Manage Books</h1>
           <button
             onClick={handleAdd}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 font-medium"
+            className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-4 py-2 rounded-xl hover:from-violet-500 hover:to-indigo-500 transition-all flex items-center gap-2 font-medium shadow-glow-sm"
           >
-            <FiPlus /> Add Book
+            <Plus className="w-4 h-4" /> Add Book
           </button>
         </div>
 
         {/* Books Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="glass-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
-                <tr className="bg-gray-50 text-gray-600 text-sm">
+                <tr className="border-b border-white/5 text-gray-400 text-sm">
                   <th className="px-6 py-4 text-left font-semibold">Book</th>
                   <th className="px-6 py-4 text-left font-semibold">Author</th>
                   <th className="px-6 py-4 text-left font-semibold">Category</th>
@@ -92,24 +92,24 @@ const ManageBooks = () => {
                   <th className="px-6 py-4 text-left font-semibold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-white/5">
                 {books.map((book) => (
-                  <tr key={book._id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={book._id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         {book.coverImage ? (
                           <img src={book.coverImage} alt={book.title} className="w-10 h-12 object-cover rounded" />
                         ) : (
-                          <div className="w-10 h-12 bg-indigo-100 rounded flex items-center justify-center">
-                            <FiBookOpen className="text-indigo-400" />
+                          <div className="w-10 h-12 bg-violet-500/10 rounded flex items-center justify-center">
+                            <BookOpen className="w-4 h-4 text-violet-400" />
                           </div>
                         )}
-                        <span className="font-medium text-gray-800">{book.title}</span>
+                        <span className="font-medium text-white">{book.title}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{book.author}</td>
+                    <td className="px-6 py-4 text-sm text-gray-400">{book.author}</td>
                     <td className="px-6 py-4">
-                      <span className="bg-indigo-50 text-indigo-700 text-xs font-medium px-2 py-1 rounded-full">
+                      <span className="bg-violet-500/10 text-violet-400 text-xs font-medium px-2 py-1 rounded-full border border-violet-500/20">
                         {book.category}
                       </span>
                     </td>
@@ -118,8 +118,8 @@ const ManageBooks = () => {
                       <span
                         className={`text-xs font-semibold px-2 py-1 rounded-full ${
                           book.availability
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                            : "bg-red-500/10 text-red-400 border border-red-500/20"
                         }`}
                       >
                         {book.availability ? "Available" : "Borrowed"}
@@ -129,17 +129,17 @@ const ManageBooks = () => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleEdit(book)}
-                          className="text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors"
+                          className="text-cyan-400 hover:bg-cyan-500/10 p-2 rounded-lg transition-colors"
                           title="Edit"
                         >
-                          <FiEdit2 />
+                          <Pencil className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(book._id)}
-                          className="text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                          className="text-red-400 hover:bg-red-500/10 p-2 rounded-lg transition-colors"
                           title="Delete"
                         >
-                          <FiTrash2 />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
@@ -147,7 +147,7 @@ const ManageBooks = () => {
                 ))}
                 {books.length === 0 && (
                   <tr>
-                    <td colSpan="6" className="text-center py-10 text-gray-400">
+                    <td colSpan="6" className="text-center py-10 text-gray-500">
                       No books found. Add your first book!
                     </td>
                   </tr>
@@ -159,17 +159,17 @@ const ManageBooks = () => {
 
         {/* Add/Edit Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="glass-card w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-800">
+                <h2 className="font-heading text-xl font-bold text-white">
                   {editingBook ? "Edit Book" : "Add New Book"}
                 </h2>
                 <button
                   onClick={() => { setShowModal(false); setEditingBook(null); }}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-400 hover:text-white transition-colors"
                 >
-                  <FiX size={24} />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
               <BookForm
