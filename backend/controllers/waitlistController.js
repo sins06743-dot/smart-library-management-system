@@ -88,6 +88,41 @@ exports.leaveWaitlist = catchAsyncErrors(async (req, res, next) => {
     { $inc: { position: -1 } }
   );
 
+  // If the leaving user was notified (position 1), auto-advance the next person
+  if (entry.status === "cancelled" && entry.position === 1) {
+    const next = await Waitlist.findOne({
+      book: bookId,
+      status: "waiting",
+      position: 1,
+    })
+      .populate("user", "name email")
+      .populate("book", "title");
+
+    if (next) {
+      next.status = "notified";
+      next.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      await next.save();
+
+      try {
+        await sendEmail({
+          email: next.user.email,
+          subject: `"${next.book.title}" is now available for you — Smart Library`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #4f46e5;">📚 Your Turn to Claim!</h2>
+              <p>Hi <strong>${next.user.name}</strong>,</p>
+              <p>The book <strong>"${next.book.title}"</strong> is available and you are now first in line.</p>
+              <p>You have <strong>24 hours</strong> to log in and borrow it.</p>
+              <p style="margin-top: 24px; color: #6b7280; font-size: 12px;">Smart Library Management System</p>
+            </div>
+          `,
+        });
+      } catch (err) {
+        console.error("Waitlist advance notification failed:", err);
+      }
+    }
+  }
+
   res.status(200).json({
     success: true,
     message: "You have been removed from the waitlist",

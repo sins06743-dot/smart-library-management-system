@@ -1,5 +1,6 @@
 const Borrow = require("../models/borrowModel");
 const Book = require("../models/bookModel");
+const mongoose = require("mongoose");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const calculateFine = require("../utils/fineCalculator");
 const sendEmail = require("../utils/sendEmail");
@@ -206,8 +207,16 @@ exports.returnByQR = catchAsyncErrors(async (req, res, next) => {
     });
   }
 
+  // Validate bookId is a proper MongoDB ObjectId to prevent NoSQL injection
+  if (!mongoose.Types.ObjectId.isValid(bookId)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid book ID format",
+    });
+  }
+
   // Build query — members can only return their own; admins bypass ownership
-  const query = { book: bookId, status: "borrowed" };
+  const query = { book: new mongoose.Types.ObjectId(bookId), status: "borrowed" };
   if (req.user.role !== "admin") {
     query.user = req.user._id;
   }

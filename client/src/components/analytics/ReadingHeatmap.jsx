@@ -4,6 +4,9 @@ import { fetchStreakCalendar } from "../../redux/slices/analyticsSlice";
 
 const DAYS = ["", "Mon", "", "Wed", "", "Fri", ""];
 
+// Convert JS getDay() (0=Sun) to Monday-based index (0=Mon)
+const toMondayIndex = (jsDay) => (jsDay + 6) % 7;
+
 /**
  * GitHub-style 52×7 CSS grid heatmap.
  * Each cell = one day, color intensity based on daily borrow count.
@@ -35,8 +38,8 @@ const ReadingHeatmap = () => {
   const weeks = useMemo(() => {
     if (!calendar.length) return [];
     const result = [];
-    // Pad the beginning so the first day aligns to correct weekday
-    const firstDayOfWeek = new Date(calendar[0]?.date).getDay(); // 0=Sun
+    // Pad the beginning so the first day aligns to correct weekday (Monday-based)
+    const firstDayOfWeek = toMondayIndex(new Date(calendar[0]?.date).getDay());
     const padded = [...Array(firstDayOfWeek).fill(null), ...calendar];
     for (let i = 0; i < padded.length; i += 7) {
       result.push(padded.slice(i, i + 7));
@@ -49,7 +52,7 @@ const ReadingHeatmap = () => {
     if (!calendar.length) return [];
     const labels = [];
     let lastMonth = -1;
-    const firstDayOfWeek = new Date(calendar[0]?.date).getDay();
+    const firstDayOfWeek = toMondayIndex(new Date(calendar[0]?.date).getDay());
     let dayIndex = 0;
 
     for (const day of calendar) {

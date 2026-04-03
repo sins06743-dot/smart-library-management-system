@@ -81,6 +81,7 @@ const QRScanner = ({ onClose }) => {
   const scannerRef = useRef(null);
   const scannerInstanceRef = useRef(null);
   const lastScannedRef = useRef("");
+  const RESCAN_DELAY_MS = 3000; // Time before allowing re-scan after an error
 
   // Deduplicated scan handler via useCallback
   const handleScanSuccess = useCallback(
@@ -115,7 +116,7 @@ const QRScanner = ({ onClose }) => {
         // Allow re-scanning after error
         setTimeout(() => {
           lastScannedRef.current = "";
-        }, 3000);
+        }, RESCAN_DELAY_MS);
       }
     },
     [dispatch, mode, onClose]

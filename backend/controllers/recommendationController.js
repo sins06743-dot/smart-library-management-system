@@ -96,12 +96,16 @@ exports.getRecommendations = catchAsyncErrors(async (req, res, next) => {
   const oldestCreated = Math.min(...candidates.map((b) => new Date(b.createdAt).getTime()));
   const timeSpan = Math.max(now - oldestCreated, 1);
 
+  // Convert arrays to Sets for O(1) lookups during scoring
+  const myCategoriesSet = new Set(myCategories);
+  const myAuthorsSet = new Set(myAuthors);
+
   // Step 4: Score every candidate
   const scored = candidates.map((book) => {
     const obj = book.toObject();
 
     // Category score (1 if matches a preferred category, 0 otherwise)
-    const categoryScore = myCategories.includes(book.category) ? 1 : 0;
+    const categoryScore = myCategoriesSet.has(book.category) ? 1 : 0;
 
     // Popularity score (normalised rating × review volume)
     const ratingNorm = (book.averageRating || 0) / maxRating;
@@ -113,7 +117,7 @@ exports.getRecommendations = catchAsyncErrors(async (req, res, next) => {
     const recencyScore = 1 - age / timeSpan;
 
     // Author score (1 if matches a preferred author)
-    const authorScore = myAuthors.includes(book.author) ? 1 : 0;
+    const authorScore = myAuthorsSet.has(book.author) ? 1 : 0;
 
     // Base content-based score
     let score =
