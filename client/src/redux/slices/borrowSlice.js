@@ -63,6 +63,18 @@ export const getOverdueRecords = createAsyncThunk(
   }
 );
 
+export const returnByQR = createAsyncThunk(
+  "borrow/returnByQR",
+  async (bookId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.put("/borrow/return-by-qr", { bookId });
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to return book");
+    }
+  }
+);
+
 // Borrow slice
 const borrowSlice = createSlice({
   name: "borrow",
@@ -145,6 +157,18 @@ const borrowSlice = createSlice({
         state.overdueRecords = action.payload.records;
       })
       .addCase(getOverdueRecords.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // Return by QR
+    builder
+      .addCase(returnByQR.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(returnByQR.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message;
+      })
+      .addCase(returnByQR.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
