@@ -15,7 +15,7 @@ const BorrowRecords = () => {
   const { records, overdueRecords, loading, error, message } = useSelector(
     (state) => state.borrow
   );
-  const [filter, setFilter] = useState("all"); // all, borrowed, returned, overdue
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     dispatch(getAllRecords());
@@ -61,10 +61,10 @@ const BorrowRecords = () => {
   const filteredRecords = getFilteredRecords();
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen pt-16">
       <Sidebar />
       <div className="flex-1 p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Borrow Records</h1>
+        <h1 className="font-heading text-2xl font-bold text-white mb-6">Borrow Records</h1>
 
         {/* Filter Tabs */}
         <div className="flex gap-2 mb-6 flex-wrap">
@@ -77,14 +77,14 @@ const BorrowRecords = () => {
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                 filter === tab.key
                   ? tab.danger
-                    ? "bg-red-600 text-white"
-                    : "bg-indigo-600 text-white"
+                    ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                    : "bg-violet-500/20 text-violet-400 border border-violet-500/30"
                   : tab.danger
-                  ? "bg-red-50 text-red-600 hover:bg-red-100"
-                  : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+                  ? "bg-red-500/5 text-red-400/60 hover:bg-red-500/10 border border-white/5"
+                  : "bg-white/5 text-gray-400 hover:bg-white/10 border border-white/5"
               }`}
             >
               {tab.label}
@@ -94,7 +94,7 @@ const BorrowRecords = () => {
 
         {/* Borrow Table */}
         {loading ? (
-          <div className="text-center py-10 text-gray-400">Loading...</div>
+          <div className="text-center py-10 text-gray-500">Loading...</div>
         ) : (
           <BorrowTable
             records={filteredRecords}

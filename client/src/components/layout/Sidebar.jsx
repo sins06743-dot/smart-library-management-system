@@ -1,41 +1,40 @@
 import { NavLink } from "react-router-dom";
 import {
-  FiGrid,
-  FiBook,
-  FiUsers,
-  FiFileText,
-  FiBarChart2,
-} from "react-icons/fi";
+  LayoutDashboard,
+  BookOpen,
+  Users,
+  FileText,
+  BarChart2,
+} from "lucide-react";
 
-// Admin sidebar navigation
 const Sidebar = () => {
   const navItems = [
-    { to: "/admin/dashboard", icon: <FiGrid />, label: "Dashboard" },
-    { to: "/admin/books", icon: <FiBook />, label: "Manage Books" },
-    { to: "/admin/users", icon: <FiUsers />, label: "Manage Users" },
-    { to: "/admin/borrow-records", icon: <FiFileText />, label: "Borrow Records" },
-    { to: "/admin/reports", icon: <FiBarChart2 />, label: "Reports" },
+    { to: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    { to: "/admin/books", icon: BookOpen, label: "Manage Books" },
+    { to: "/admin/users", icon: Users, label: "Manage Users" },
+    { to: "/admin/borrow-records", icon: FileText, label: "Borrow Records" },
+    { to: "/admin/reports", icon: BarChart2, label: "Reports" },
   ];
 
   return (
-    <aside className="w-64 bg-gray-900 min-h-screen text-gray-300">
+    <aside className="w-64 bg-surface-100 min-h-screen border-r border-white/5">
       <div className="p-6">
-        <h2 className="text-white font-bold text-lg mb-8">Admin Panel</h2>
+        <h2 className="font-heading text-white font-bold text-lg mb-8">Admin Panel</h2>
         <nav className="space-y-1">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                   isActive
-                    ? "bg-indigo-600 text-white"
-                    : "hover:bg-gray-800 text-gray-300"
+                    ? "bg-gradient-to-r from-violet-600/20 to-indigo-600/20 text-violet-400 border border-violet-500/20"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`
               }
             >
-              <span className="text-lg">{item.icon}</span>
-              <span className="font-medium">{item.label}</span>
+              <item.icon className="w-5 h-5" />
+              <span className="font-medium text-sm">{item.label}</span>
             </NavLink>
           ))}
         </nav>
